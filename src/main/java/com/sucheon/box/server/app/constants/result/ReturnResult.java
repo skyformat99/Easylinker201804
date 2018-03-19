@@ -1,0 +1,43 @@
+package com.sucheon.box.server.app.constants.result;
+
+import com.alibaba.fastjson.JSONObject;
+
+/**
+ * Http REST API 返回结果 封装
+ */
+public class ReturnResult {
+    /**
+     * 纯粹发没回一个字符串提示
+     *
+     * @param code
+     * @param tipMessage
+     * @return
+     */
+    public static JSONObject returnTipMessage(int code, String tipMessage) {
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("code", code);
+        returnJson.put("message", tipMessage);
+        return returnJson;
+
+    }
+
+    /**
+     * 返回带数据的提示信息
+     *
+     * @param code
+     * @param tipMessage
+     * @param data
+     * @return
+     */
+
+    public static JSONObject returnDataMessage(int code, String tipMessage, JSONObject data) {
+
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("code", code);
+        returnJson.put("message", tipMessage);
+        returnJson.put("data", data);
+        return returnJson;
+    }
+
+
+}
