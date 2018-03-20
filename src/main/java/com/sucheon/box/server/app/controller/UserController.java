@@ -146,5 +146,19 @@ public class UserController {
 
     }
 
+    /**
+     * 用户获取所有的设备
+     *
+     * @return
+     */
+    @RequestMapping(value = "/changeDeviceGroup", method = RequestMethod.GET)
+    public JSONObject changeDeviceGroup() {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return ReturnResult.returnDataMessage(1, "查询成功!",  deviceService.getAllDevicesByAppUser(appUser));
+
+
+    }
+
 
 }

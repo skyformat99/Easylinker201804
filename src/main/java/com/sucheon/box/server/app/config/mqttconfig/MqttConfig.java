@@ -4,6 +4,7 @@ import com.sucheon.box.server.app.config.mqttconfig.handler.ClientOnAndOfflineWi
 import com.sucheon.box.server.app.config.mqttconfig.handler.InMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -19,9 +20,12 @@ import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
  */
 @Configuration
 public class MqttConfig {
-    private static final String LOCALHOST_EMQ_URL = "tcp://localhost";
-    private static final String LOCALHOST_EMQ_USERNAME = "localhost";
-    private static final String LOCALHOST_EMQ_PASSWORD = "localhost";
+    @Value("${emq.host}")
+    private String LOCALHOST_EMQ_URL;
+    @Value("${emq.api.user}")
+    private String LOCALHOST_EMQ_USERNAME ;
+    @Value("${emq.api.password}")
+    private String LOCALHOST_EMQ_PASSWORD;
     Logger logger = LoggerFactory.getLogger(MqttConfig.class);
 
 
@@ -81,8 +85,8 @@ public class MqttConfig {
         MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(
                 "MqttClientInMessageListenerInbound",
                 mqttClientFactory());
-        //in/client/{GROUP}/{OPENID}  为客户端SUB的TOPIC
-        adapter.addTopic("in/client/+/#");//监控设备publish的消息
+        //OUT/DEVICE/DEFAULT_USER/DEFAULT_GROUP/ID  为客户端SUB的TOPIC
+        adapter.addTopic("IN/DEVICE/+/+/#");//监控设备publish的消息
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);

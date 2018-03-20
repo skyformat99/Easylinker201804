@@ -1,5 +1,6 @@
 package com.sucheon.box.server.app.model.device;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sucheon.box.server.app.model.base.BaseEntity;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -20,7 +21,7 @@ public class Location extends BaseEntity {
     private String locationDescribe;
 
     @OneToOne(targetEntity = Device.class, fetch = FetchType.LAZY)
-    @NotFound(action= NotFoundAction.IGNORE)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Device device;
 
     public Device getDevice() {
@@ -53,5 +54,14 @@ public class Location extends BaseEntity {
 
     public void setLocationDescribe(String locationDescribe) {
         this.locationDescribe = locationDescribe;
+    }
+
+    @Override
+    public String toString() {
+        JSONObject data = new JSONObject();
+        data.put("latitude", latitude);
+        data.put("latitude", longitude);
+        data.put("latitude", locationDescribe);
+        return data.toJSONString();
     }
 }

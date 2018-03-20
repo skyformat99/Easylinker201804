@@ -1,5 +1,6 @@
 package com.sucheon.box.server.app.constants.result;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -36,6 +37,23 @@ public class ReturnResult {
         returnJson.put("code", code);
         returnJson.put("message", tipMessage);
         returnJson.put("data", data);
+        return returnJson;
+    }
+
+    /**
+     * 返回带Json数组的数据
+     *
+     * @param code
+     * @param tipMessage
+     * @param data
+     * @return
+     */
+    public static JSONObject returnDataMessage(int code, String tipMessage, JSONArray data) {
+
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("code", code);
+        returnJson.put("data", data);
+        returnJson.put("message", tipMessage);
         return returnJson;
     }
 

@@ -8,6 +8,7 @@ import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 /**
@@ -30,17 +31,14 @@ public class Device extends BaseEntity {
     @OneToOne(targetEntity = Location.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Location location;
 
-
     @ManyToOne(targetEntity = DeviceGroup.class, fetch = FetchType.LAZY)
     private DeviceGroup deviceGroup;
 
 
-    /**
-     * 完整的路径
-     * {"IN/device/publisher/#",
-     * "OUT/device/subscriber/#"
-     * }
-     */
+
+    @OneToMany(targetEntity = AudioData.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<AudioData> audioDataList;
+
     private String topic;
     @JSONField(serialize = false)
     @ManyToOne(targetEntity = AppUser.class, fetch = FetchType.LAZY)
@@ -160,5 +158,13 @@ public class Device extends BaseEntity {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public List<AudioData> getAudioDataList() {
+        return audioDataList;
+    }
+
+    public void setAudioDataList(List<AudioData> audioDataList) {
+        this.audioDataList = audioDataList;
     }
 }
