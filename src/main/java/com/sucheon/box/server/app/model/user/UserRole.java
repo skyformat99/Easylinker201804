@@ -1,6 +1,8 @@
 package com.sucheon.box.server.app.model.user;
 
 import com.sucheon.box.server.app.model.base.BaseEntity;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -10,7 +12,7 @@ import java.io.Serializable;
 
 @Entity
 public class UserRole extends BaseEntity implements Serializable {
-
+    @NotFound(action= NotFoundAction.IGNORE)
     @ManyToOne(targetEntity = AppUser.class )
     AppUser appUser;
 

@@ -10,6 +10,7 @@ import com.sucheon.box.server.app.utils.EmailSender;
 import com.sucheon.box.server.app.utils.MD5Generator;
 import com.sun.mail.smtp.SMTPAddressFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +43,7 @@ public class UserRegisterEtcController {
      * @return
      */
     @RequestMapping("/register")
+    @Transient
     public JSONObject register(@RequestBody JSONObject userBody) {
 
         String username = userBody.getString("username");
@@ -75,19 +77,25 @@ public class UserRegisterEtcController {
                 appUser.setEmail(email);
                 appUser.setPhone(phone);
                 //添加权限  默认新用户全部是 ROLE_USER 普通用户
+                appUserService.save(appUser);
+
                 UserRole userRole = new UserRole();
                 userRole.setAppUser(appUser);
                 userRole.setRole("ROLE_USER");
+                userRoleService.save(userRole);
                 try {
                     emailSender.sendActiveUserAccountMail(appUser);
-                    userRoleService.save(userRole);
-                    appUserService.save(appUser);
+
                     return ReturnResult.returnTipMessage(1, "注册成功!");
                 } catch (Exception e) {
-
-                    if (e instanceof SMTPAddressFailedException)
+                    if (e instanceof SMTPAddressFailedException){
                         return ReturnResult.returnTipMessage(0, "邮箱无效！请使用正确的邮箱!");
-                    return ReturnResult.returnTipMessage(0, "邮箱无效！");
+                    }else {
+                        e.printStackTrace();
+                        return ReturnResult.returnTipMessage(0, "邮箱无效！");
+                    }
+
+
                 }
 
             }

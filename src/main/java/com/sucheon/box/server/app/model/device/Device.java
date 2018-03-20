@@ -27,13 +27,11 @@ public class Device extends BaseEntity {
     private Integer allow = 1;
     //1: subscribe, 2: publish, 3: pubsub
     private Integer access = 3;
-    @NotFound(action= NotFoundAction.IGNORE)
     @OneToOne(targetEntity = Location.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Location location;
 
 
     @ManyToOne(targetEntity = DeviceGroup.class, fetch = FetchType.LAZY)
-    @NotFound(action= NotFoundAction.IGNORE)
     private DeviceGroup deviceGroup;
 
 

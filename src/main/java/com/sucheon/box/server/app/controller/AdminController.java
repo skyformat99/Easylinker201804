@@ -43,42 +43,52 @@ public class AdminController {
     public JSONObject addADevice(@RequestBody JSONObject deviceBody) {
         String deviceName = deviceBody.getString("deviceName");
         String deviceDescribe = deviceBody.getString("deviceDescribe");
-        if (deviceName == null || deviceDescribe == null) {
+
+        String deviceNamePrefix = deviceBody.getString("deviceNamePrefix");
+        String latitude = deviceBody.getString("latitude");
+        String longitude = deviceBody.getString("longitude");
+        String locationDescribe = deviceBody.getString("locationDescribe");
+        String groupName = deviceBody.getString("groupName");
+
+
+        if (groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
             return ReturnResult.returnTipMessage(0, "参数不全，请检查参数后提交!");
+
+
+        } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
         } else {
-            AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            //北纬N39°54′6.74″ 东经E116°23′29.52″
-            //默认设备位置天安门广场
+
             Device device = new Device();
             DeviceGroup deviceGroup = new DeviceGroup();
-            Location location = new Location();
-
-            location.setDevice(device);
-            location.setLatitude("E116°23′29.52″");
-            location.setLongitude("N39°54′6.74″");
-            location.setLocationDescribe("北京市天安门广场");
-            locationService.save(location);//先保存位置
-
-            deviceGroup.setAppUser(null);
             deviceGroup.setComment("普通用户");
             deviceGroup.setGroupName("DEFAULT_GROUP");
             deviceGroupService.save(deviceGroup);//保存分组
 
+
             device.setDeviceGroup(deviceGroup);
-            device.setLocation(location);
             device.setDeviceName(deviceName);
             device.setDeviceDescribe(deviceDescribe);
             device.setClientId(device.getId().toString());
             //设置ACL 默认
             //"IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/123145315436
-
-
             device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());
             device.setBarCode(Image2Base64Tool.imageToBase64String(
                     QRCodeGenerator.string2BarCode(device.getId().toString()))
             );
             device.setOpenId(device.getId().toString());
             deviceService.save(device);
+
+
+            Location location = new Location();
+            location.setDevice(device);
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            location.setLocationDescribe("位于:[" + locationDescribe + "]的盒子!");
+
+
+            device.setLocation(location);
+            locationService.save(location);//先保存位置
             return ReturnResult.returnTipMessage(1, "设备创建成功!");
         }
     }
@@ -124,19 +134,14 @@ public class AdminController {
                 //北纬N39°54′6.74″ 东经E116°23′29.52″
                 //默认设备位置天安门广场
                 Device device = new Device();
-                Location location = new Location();
-                location.setDevice(device);
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                location.setLocationDescribe(locationDescribe + "_Auto_Batch_Product");
-                locationService.save(location);//先保存位置
+
                 DeviceGroup deviceGroup = new DeviceGroup();
                 deviceGroup.setAppUser(null);
                 deviceGroup.setComment("普通用户");
                 deviceGroup.setGroupName("DEFAULT_GROUP");
                 deviceGroupService.save(deviceGroup);//保存分组
                 device.setDeviceGroup(deviceGroup);
-                device.setLocation(location);
+
                 device.setLastActiveDate(new Date());
                 device.setDeviceName(deviceNamePrefix + "_Auto_Batch_Product_Num_" + i);
                 device.setDeviceDescribe("SucheonBox_Auto_Batch_Product_Num_" + i);
@@ -148,6 +153,13 @@ public class AdminController {
                 );
                 device.setOpenId(device.getId().toString());
                 deviceService.save(device);
+                Location location = new Location();
+                location.setDevice(device);
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+                location.setLocationDescribe("位于:[" + locationDescribe + "]的盒子!");
+                device.setLocation(location);
+                locationService.save(location);//先保存位置
             }
             return ReturnResult.returnTipMessage(1, "批量添加设备成功!");
         }
@@ -160,7 +172,7 @@ public class AdminController {
         Device device = deviceService.findADevice(id);
         if (device != null) {
             deviceService.delete(device);
-            return ReturnResult.returnTipMessage(0, "设备删除成功!");
+            return ReturnResult.returnTipMessage(1, "设备删除成功!");
 
         } else {
             return ReturnResult.returnTipMessage(0, "设备不存在!");
