@@ -4,6 +4,7 @@ import com.sucheon.box.server.app.config.mqttconfig.handler.ClientOnAndOfflineWi
 import com.sucheon.box.server.app.config.mqttconfig.handler.InMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannel
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 
 /**
+ * mqtt核心配置
  * Created by wwhai on 2018/3/14.
  */
 @Configuration
@@ -23,10 +25,15 @@ public class MqttConfig {
     @Value("${emq.host}")
     private String LOCALHOST_EMQ_URL;
     @Value("${emq.api.user}")
-    private String LOCALHOST_EMQ_USERNAME ;
+    private String LOCALHOST_EMQ_USERNAME;
     @Value("${emq.api.password}")
     private String LOCALHOST_EMQ_PASSWORD;
     Logger logger = LoggerFactory.getLogger(MqttConfig.class);
+
+    @Autowired
+    ClientOnAndOfflineWillMessageHandler clientOnAndOfflineWillMessageHandler;
+    @Autowired
+    InMessageHandler inMessageHandler;
 
 
     /**
@@ -70,7 +77,7 @@ public class MqttConfig {
     @Bean("MqttClientOnOrOffLineMessageListener")
     public IntegrationFlow mqttClientOnOrOffLineMessageListenerInFlow() {
         return IntegrationFlows.from(getMqttClientOnOrOffLineMessageListener())
-                .handle(new ClientOnAndOfflineWillMessageHandler())
+                .handle(clientOnAndOfflineWillMessageHandler)
                 .get();
     }
 
@@ -103,7 +110,7 @@ public class MqttConfig {
     @Bean("MqttClientInMessageListenerInFlow")
     public IntegrationFlow mqttClientInMessageListenerInFlow() {
         return IntegrationFlows.from(getMqttClientInMessageListener())
-                .handle(new InMessageHandler())
+                .handle(inMessageHandler)
                 .get();
     }
 }

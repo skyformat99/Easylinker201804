@@ -30,8 +30,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     LoginSuccessHandler loginSuccessHandler;
     @Autowired
     LoginFailureHandler loginFailureHandler;
-    @Autowired
-    CustomAuthenticationManager customAuthenticationManager;
+
     @Autowired
     AnonymousHandler anonymousHandler;
     @Autowired
@@ -45,7 +44,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(WebSecurity web) {
-        //web.ignoring().mvcMatchers("/avatar/**");//默认头像文件位置
         web.ignoring().mvcMatchers("/css/**", "/js/**", "/dest/**");//css路径放行
     }
 
@@ -73,6 +71,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().anyRequest().authenticated()
                 .and().formLogin().disable().httpBasic().disable()
                 .logout().permitAll()
+                .and().logout().logoutSuccessHandler(logoutSuccessHandler)
                 .and().rememberMe().alwaysRemember(true)
                 .and().exceptionHandling()
                 .authenticationEntryPoint(anonymousHandler)
