@@ -29,7 +29,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             jsonArray.add(grantedAuthority.getAuthority());
         }
 
-        jsonObject.put("authorities", jsonArray.toJSONString());
+        jsonObject.put("authorities", jsonArray);
         jsonObject.put("phone", appUser.getPhone());
         jsonObject.put("username", appUser.getUsername());
         returnJson.put("state", 1);

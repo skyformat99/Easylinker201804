@@ -3,8 +3,6 @@ package com.sucheon.box.server.app.model.device;
 import com.sucheon.box.server.app.model.base.BaseEntity;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
 import java.util.Date;
 
 /**
@@ -23,7 +21,7 @@ import java.util.Date;
  * PeakPowers text
  */
 @Entity
-public class AudioData extends BaseEntity {
+public class AudioData extends BaseEntity{
 
     private Date date;
     private Double std;
@@ -38,15 +36,11 @@ public class AudioData extends BaseEntity {
     private String peakPowers;
 
 
-    @ManyToOne(targetEntity = Device.class, fetch = FetchType.LAZY)
-    private Device device;
-
-
     public AudioData() {
 
     }
 
-    public AudioData(Date date, Double std, Double meanHf, Double meanLf, String feature1, String feature2, String feature3, String feature4, String bandSpectrum, String peakFrequency, String peakPowers, Device device) {
+    public AudioData(Date date, Double std, Double meanHf, Double meanLf, String feature1, String feature2, String feature3, String feature4, String bandSpectrum, String peakFrequency, String peakPowers) {
         this.date = date;
         this.std = std;
         this.meanHf = meanHf;
@@ -58,7 +52,6 @@ public class AudioData extends BaseEntity {
         this.bandSpectrum = bandSpectrum;
         this.peakFrequency = peakFrequency;
         this.peakPowers = peakPowers;
-        this.device = device;
     }
 
     public String getPeakFrequency() {
@@ -85,13 +78,6 @@ public class AudioData extends BaseEntity {
         this.std = std;
     }
 
-    public Device getDevice() {
-        return device;
-    }
-
-    public void setDevice(Device device) {
-        this.device = device;
-    }
 
     public Double getMeanHf() {
         return meanHf;

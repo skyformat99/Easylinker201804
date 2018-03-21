@@ -28,7 +28,7 @@ public class AppUserService {
     }
 
     public AppUser findAAppUser(Long id) {
-        return appUserRepository.getOne(id);
+        return appUserRepository.findTopById(id);
     }
 
 
