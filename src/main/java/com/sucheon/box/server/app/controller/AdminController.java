@@ -1,17 +1,21 @@
 package com.sucheon.box.server.app.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sucheon.box.server.app.constants.result.ReturnResult;
 import com.sucheon.box.server.app.model.device.Device;
 import com.sucheon.box.server.app.model.device.DeviceGroup;
 import com.sucheon.box.server.app.model.device.Location;
 import com.sucheon.box.server.app.model.user.AppUser;
+import com.sucheon.box.server.app.service.AppUserService;
 import com.sucheon.box.server.app.service.DeviceGroupService;
 import com.sucheon.box.server.app.service.DeviceService;
 import com.sucheon.box.server.app.service.LocationService;
 import com.sucheon.box.server.app.utils.Image2Base64Tool;
 import com.sucheon.box.server.app.utils.QRCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +35,8 @@ public class AdminController {
     DeviceService deviceService;
     @Autowired
     DeviceGroupService deviceGroupService;
+    @Autowired
+    AppUserService appUserService;
 
     /**
      * 管理员增加一个设备
@@ -166,7 +172,12 @@ public class AdminController {
 
     }
 
-
+    /**
+     * 删除设备
+     *
+     * @param id
+     * @return
+     */
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public JSONObject delete(@PathVariable("id") Long id) {
         Device device = deviceService.findADevice(id);
@@ -177,5 +188,60 @@ public class AdminController {
         } else {
             return ReturnResult.returnTipMessage(0, "设备不存在!");
         }
+    }
+
+    /**
+     * 管理员查看所有设备
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getAllDevices/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllDevices(@PathVariable int page, @PathVariable int size) {
+        return ReturnResult.returnDataMessage(1, "查询成功!",
+                deviceService.getAllDevices(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+
+    }
+
+    /**
+     * 管理员绑定设备
+     *
+     * @return
+     */
+    @RequestMapping(value = "/bindDevicesToUser", method = RequestMethod.POST)
+    public JSONObject bindDevicesToUser(@RequestBody JSONObject body) {
+        //[111,222,333,4444]->appUser
+        Long userId = body.getLongValue("userId");
+        JSONArray deviceIdArray;
+        try {
+            deviceIdArray = body.getJSONArray("deviceIdArray");
+        } catch (Exception e) {
+            return ReturnResult.returnTipMessage(1, "deviceIdArray应该为数组!");
+
+        }
+
+        if (userId == null || deviceIdArray == null) {
+            return ReturnResult.returnTipMessage(0, "参数不全!");
+        } else {
+            AppUser appUser = appUserService.findAAppUser(userId);
+            if (appUser != null) {
+                int total = deviceIdArray.size();
+                int successCount = 0;
+                for (Object o : deviceIdArray) {
+                    Device device = deviceService.findADevice((Long.parseLong(o.toString())));
+                    if (device != null && device.getAppUser() == null) {
+                        successCount += 1;
+                        device.setAppUser(appUser);
+                        deviceService.save(device);
+                    }
+
+                }
+                return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "]");
+            } else {
+                return ReturnResult.returnTipMessage(0, "用户不存在!");
+
+            }
+        }
+
+
     }
 }
