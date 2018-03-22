@@ -49,7 +49,6 @@ public class AdminController {
     public JSONObject addADevice(@RequestBody JSONObject deviceBody) {
         String deviceName = deviceBody.getString("deviceName");
         String deviceDescribe = deviceBody.getString("deviceDescribe");
-
         String deviceNamePrefix = deviceBody.getString("deviceNamePrefix");
         String latitude = deviceBody.getString("latitude");
         String longitude = deviceBody.getString("longitude");
@@ -58,7 +57,7 @@ public class AdminController {
 
 
         if (groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
-            return ReturnResult.returnTipMessage(0, "参数不全，请检查参数后提交!");
+            return ReturnResult.returnTipMessage(0, "参数不全!");
 
 
         } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
@@ -71,11 +70,16 @@ public class AdminController {
             deviceGroup.setGroupName("DEFAULT_GROUP");
             deviceGroupService.save(deviceGroup);//保存分组
 
-
-            device.setDeviceGroup(deviceGroup);
-            device.setDeviceName(deviceName);
-            device.setDeviceDescribe(deviceDescribe);
+            device.setLastActiveDate(new Date());
+            device.setDeviceName("SucheonBox_" + deviceName);
+            device.setDeviceName(deviceNamePrefix + "_Auto_Batch_Product_Num_");
+            device.setDeviceDescribe("SucheonBox_" + deviceDescribe);
             device.setClientId(device.getId().toString());
+            //设置ACL  默认值
+            device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());
+            device.setBarCode(Image2Base64Tool.imageToBase64String(
+                    QRCodeGenerator.string2BarCode(device.getId().toString()))
+            );
             //设置ACL 默认
             //"IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/123145315436
             device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());
@@ -85,13 +89,11 @@ public class AdminController {
             device.setOpenId(device.getId().toString());
             deviceService.save(device);
 
-
             Location location = new Location();
             location.setDevice(device);
             location.setLatitude(latitude);
             location.setLongitude(longitude);
             location.setLocationDescribe("位于:[" + locationDescribe + "]的盒子!");
-
 
             device.setLocation(location);
             locationService.save(location);//先保存位置

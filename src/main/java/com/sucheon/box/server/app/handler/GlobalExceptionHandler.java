@@ -27,6 +27,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public JSONObject defaultErrorHandler(Exception e) {
         JSONObject resultJson = new JSONObject();
+        e.printStackTrace();
         if (e instanceof NoHandlerFoundException) {
             resultJson.put("state", 0);
             resultJson.put("message", "Error code 404! 不存在该路由!");
