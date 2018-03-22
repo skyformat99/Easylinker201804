@@ -40,6 +40,7 @@ public class CustomUsernamePasswordFilter extends UsernamePasswordAuthentication
     private Log logger = LogFactory.getLog(CustomUsernamePasswordFilter.class);
     LoginParameterCatcher loginParameterCatcher = null;
 
+
     public CustomUsernamePasswordFilter() {
         setAuthenticationManager(super.getAuthenticationManager());
 
