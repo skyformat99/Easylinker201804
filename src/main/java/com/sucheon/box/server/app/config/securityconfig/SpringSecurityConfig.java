@@ -44,7 +44,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().mvcMatchers("/css/**", "/js/**", "/dest/**");//css路径放行
+        web.ignoring().mvcMatchers(
+                "/css/**",
+                "/js/**",
+                "/dest/**");//css路径放行
     }
 
 
@@ -65,10 +68,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         //配置不用过滤的路由
         http.authorizeRequests()
                 .antMatchers(
-                        "/register.html",
-                        "/index.html",
                         "/",
-                        "/index",
                         "/userLogin",
                         "/user/register",
                         "/user/active")

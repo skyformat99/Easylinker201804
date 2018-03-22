@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
             resultJson.put("message", "Error code 500! 请求的HTTP方法不支持!");
         } else if (e instanceof NullPointerException) {
             resultJson.put("state", 0);
-            resultJson.put("message", "Error code 5001! 丢失参数!");
+            resultJson.put("message", "Error code 5001! 丢失必要参数!");
 
         } else if (e instanceof HttpMessageNotReadableException) {
             resultJson.put("state", 0);
