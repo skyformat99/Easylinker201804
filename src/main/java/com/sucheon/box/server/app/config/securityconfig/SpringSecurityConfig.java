@@ -64,7 +64,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilter(getCustomUsernamePasswordFilter());
         //配置不用过滤的路由
         http.authorizeRequests()
-                .antMatchers("/", "/index", "/userLogin", "/user/register", "/user/active")
+                .antMatchers(
+                        "/register.html",
+                        "/index.html",
+                        "/",
+                        "/index",
+                        "/userLogin",
+                        "/user/register",
+                        "/user/active")
                 .permitAll();
 
 

@@ -24,9 +24,9 @@ import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 public class MqttConfig {
     @Value("${emq.host}")
     private String LOCALHOST_EMQ_URL;
-    @Value("${emq.api.user}")
+    @Value("${emq.username}")
     private String LOCALHOST_EMQ_USERNAME;
-    @Value("${emq.api.password}")
+    @Value("${emq.password}")
     private String LOCALHOST_EMQ_PASSWORD;
     Logger logger = LoggerFactory.getLogger(MqttConfig.class);
 

@@ -7,6 +7,7 @@ import com.sucheon.box.server.app.model.device.Device;
 import com.sucheon.box.server.app.model.device.DeviceData;
 import com.sucheon.box.server.app.model.user.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,14 +41,29 @@ public class DeviceService {
 
     public JSONArray getAllDevicesByAppUser(AppUser appUser) {
         JSONArray data = new JSONArray();
-        List<Device> dataList = deviceRepository.findAll();
+        List<Device> dataList = deviceRepository.findAllByAppUser(appUser);
+        for (Device device : dataList) {
+            JSONObject deviceJson = new JSONObject();
+            deviceJson.put("name", device.getDeviceName());
+            deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("lastActiveDate", device.getLastActiveDate());
+            deviceJson.put("describe", device.getDeviceDescribe());
+            deviceJson.put("location", device.getLocation().toString());
+            data.add(deviceJson);
+        }
+        return data;
+    }
+
+    public JSONArray getAllDevices(Pageable pageable) {
+        JSONArray data = new JSONArray();
+        List<Device> dataList = deviceRepository.findAll(pageable).getContent();
         for (Device device : dataList) {
             JSONObject deviceJson = new JSONObject();
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("describe", device.getDeviceDescribe());
             deviceJson.put("barCode", device.getBarCode());
-            deviceJson.put("lastActiveDate", device.getLastActiveDate());
             deviceJson.put("location", device.getLocation().toString());
+            deviceJson.put("lastActiveDate", device.getLastActiveDate());
             data.add(deviceJson);
         }
         return data;

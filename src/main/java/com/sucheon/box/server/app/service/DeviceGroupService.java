@@ -56,6 +56,7 @@ public class DeviceGroupService {
         List<DeviceGroup> deviceGroupList = deviceGroupRepository.findAllByAppUser(appUser);
         for (DeviceGroup group : deviceGroupList) {
             JSONObject dataJson = new JSONObject();
+            dataJson.put("id", group.getId());
             dataJson.put("user", group.getAppUser().getId());
             dataJson.put("name", group.getGroupName());
             dataJson.put("comment", group.getComment());

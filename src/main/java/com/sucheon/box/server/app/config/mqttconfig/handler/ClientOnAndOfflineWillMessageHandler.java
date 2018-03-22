@@ -23,7 +23,7 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
     Logger logger = LoggerFactory.getLogger(ClientOnAndOfflineWillMessageHandler.class);
     @Autowired
     DeviceService deviceService;
-    @Value("${emq.api.user}")
+    @Value("${emq.username}")
     private String EMQ_USERNAME;
 
 
@@ -48,6 +48,7 @@ public class ClientOnAndOfflineWillMessageHandler implements MessageHandler {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error("解析消息时出现了格式错误!");
             }
 
