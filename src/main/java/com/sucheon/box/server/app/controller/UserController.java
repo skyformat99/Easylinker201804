@@ -151,8 +151,8 @@ public class UserController {
      *
      * @return
      */
-    @RequestMapping(value = "/changeDeviceGroup", method = RequestMethod.GET)
-    public JSONObject changeDeviceGroup() {
+    @RequestMapping(value = "/getAllDevices", method = RequestMethod.GET)
+    public JSONObject getAllDevices() {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return ReturnResult.returnDataMessage(1, "查询成功!",  deviceService.getAllDevicesByAppUser(appUser));
