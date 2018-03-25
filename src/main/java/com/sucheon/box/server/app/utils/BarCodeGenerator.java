@@ -22,7 +22,7 @@ public class BarCodeGenerator {
     public static void createBarCodeImage(Device device) {
         int width = 600;
         int height = 200;
-        File file = new File("F:/Image/createImage.png");
+        File file = new File("./createImage.png");
         Font font = new Font("宋体", Font.BOLD, 26);
         BufferedImage bufferedImage = new BufferedImage(
                 width,

@@ -72,7 +72,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/",
                         "/userLogin",
                         "/user/register",
-                        "/user/active")
+                        "/data/exportExcel",
+
+                        "/user/active"
+                )
                 .permitAll();
 
 

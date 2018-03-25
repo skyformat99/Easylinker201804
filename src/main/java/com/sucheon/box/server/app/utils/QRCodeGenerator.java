@@ -43,27 +43,6 @@ public class QRCodeGenerator {
         return file;
     }
 
-    /**
-     * 读二维码并输出携带的信息
-     */
-    public static String readQrCode(String path) throws IOException {
-        BufferedImage image = ImageIO.read(new FileInputStream(new File(path)));
-        LuminanceSource source = new BufferedImageLuminanceSource(image);
-        BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-        QRCodeReader reader = new QRCodeReader();
-        Result result = null;
-        try {
-            result = reader.decode(bitmap);
-        } catch (ReaderException e) {
-            e.printStackTrace();
-        }
-        return result.getText();
-    }
 
-
-//    public static void main(String[] args) {
-//        System.out.println(Image2Base64Tool.imageToBase64String(string2BarCode("wwhai")));
-//
-//    }
 
 }
