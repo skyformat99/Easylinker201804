@@ -62,7 +62,7 @@ public class DeviceService {
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("describe", device.getDeviceDescribe());
             deviceJson.put("barCode", device.getBarCode());
-            deviceJson.put("location", device.getLocation().toString());
+            deviceJson.put("location", device.getLocation().getLocationDescribe());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             data.add(deviceJson);
         }

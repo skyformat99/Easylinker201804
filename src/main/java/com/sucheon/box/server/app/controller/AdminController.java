@@ -56,7 +56,7 @@ public class AdminController {
         String groupName = deviceBody.getString("groupName");
 
 
-        if (groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
+        if (deviceName == null || groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
 
 
@@ -87,16 +87,14 @@ public class AdminController {
                     QRCodeGenerator.string2BarCode(device.getId().toString()))
             );
             device.setOpenId(device.getId().toString());
-            deviceService.save(device);
-
             Location location = new Location();
             location.setDevice(device);
             location.setLatitude(latitude);
             location.setLongitude(longitude);
             location.setLocationDescribe("位于:[" + locationDescribe + "]的盒子!");
-
-            device.setLocation(location);
             locationService.save(location);//先保存位置
+            device.setLocation(location);
+            deviceService.save(device);
             return ReturnResult.returnTipMessage(1, "设备创建成功!");
         }
     }
@@ -109,16 +107,7 @@ public class AdminController {
      */
     @RequestMapping("/batchAddADevice")
     public JSONObject batchAddADevice(@RequestBody JSONObject deviceBody) {
-        /**
-         * {
-         "deviceSum":10,
-         "deviceNamePrefix" :"前缀",
-         "latitude" :"N39°54′6.74″",
-         "longitude" : "E116°23′29.52″",
-         "locationDescribe" :"厦门科技园",
-         "groupName" :"园区使用1组"
-         }
-         */
+
         int deviceSum = deviceBody.getIntValue("deviceSum");
         String deviceNamePrefix = deviceBody.getString("deviceNamePrefix");
         String latitude = deviceBody.getString("latitude");
@@ -135,14 +124,10 @@ public class AdminController {
         } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
         } else {
-            AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            //开始批量生产
             for (int i = 0; i < deviceSum; i++) {
-                //北纬N39°54′6.74″ 东经E116°23′29.52″
-                //默认设备位置天安门广场
-                Device device = new Device();
 
+                Device device = new Device();
                 DeviceGroup deviceGroup = new DeviceGroup();
                 deviceGroup.setAppUser(null);
                 deviceGroup.setComment("普通用户");
@@ -160,14 +145,15 @@ public class AdminController {
                         QRCodeGenerator.string2BarCode(device.getId().toString()))
                 );
                 device.setOpenId(device.getId().toString());
-                deviceService.save(device);
+
                 Location location = new Location();
                 location.setDevice(device);
                 location.setLatitude(latitude);
                 location.setLongitude(longitude);
                 location.setLocationDescribe("位于:[" + locationDescribe + "]的盒子!");
-                device.setLocation(location);
                 locationService.save(location);//先保存位置
+                device.setLocation(location);
+                deviceService.save(device);
             }
             return ReturnResult.returnTipMessage(1, "批量添加设备成功!");
         }
@@ -244,6 +230,19 @@ public class AdminController {
             }
         }
 
+
+    }
+
+    /**
+     * 查看当前所有的用户
+     *
+     * @return
+     */
+    @RequestMapping(value = "/getAllUsers", method = RequestMethod.GET)
+
+    public JSONObject getAllUsers() {
+
+        return ReturnResult.returnDataMessage(1, "获取成功!", appUserService.getAllUsers());
 
     }
 }

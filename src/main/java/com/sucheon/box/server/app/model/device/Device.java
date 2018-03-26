@@ -35,9 +35,9 @@ public class Device extends BaseEntity {
     private DeviceGroup deviceGroup;
 
 
-
-    @OneToMany(targetEntity = AudioData.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<AudioData> audioDataList;
+//
+//    @OneToMany(targetEntity = AudioData.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private List<AudioData> audioDataList;
 
     private String topic;
     @JSONField(serialize = false)
@@ -160,11 +160,5 @@ public class Device extends BaseEntity {
         this.location = location;
     }
 
-    public List<AudioData> getAudioDataList() {
-        return audioDataList;
-    }
 
-    public void setAudioDataList(List<AudioData> audioDataList) {
-        this.audioDataList = audioDataList;
-    }
 }
