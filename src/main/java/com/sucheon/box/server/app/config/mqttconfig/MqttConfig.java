@@ -1,7 +1,10 @@
 package com.sucheon.box.server.app.config.mqttconfig;
 
+import com.sucheon.box.server.app.config.mqttconfig.adapter.EMqttPahoMessageDrivenChannelAdapter;
+import com.sucheon.box.server.app.config.mqttconfig.handler.ClientCmdReplyMessageHandler;
 import com.sucheon.box.server.app.config.mqttconfig.handler.ClientOnAndOfflineWillMessageHandler;
 import com.sucheon.box.server.app.config.mqttconfig.handler.InMessageHandler;
+import com.sucheon.box.server.app.config.mqttconfig.handler.RealTimeMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,10 @@ public class MqttConfig {
     ClientOnAndOfflineWillMessageHandler clientOnAndOfflineWillMessageHandler;
     @Autowired
     InMessageHandler inMessageHandler;
+    @Autowired
+    ClientCmdReplyMessageHandler clientCmdReplyMessageHandler;
+    @Autowired
+    RealTimeMessageHandler realTimeMessageHandler;
 
 
     /**
@@ -58,7 +65,7 @@ public class MqttConfig {
      */
     @Bean("MqttClientOnOrOffLineMessageListenerInbound")
     public MessageProducerSupport getMqttClientOnOrOffLineMessageListener() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(
+        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "MqttClientOnOrOffLineMessageListenerInbound",
                 mqttClientFactory());
         adapter.addTopic("$SYS/brokers/+/clients/+/#");//监控设备消息上下线
@@ -113,4 +120,68 @@ public class MqttConfig {
                 .handle(inMessageHandler)
                 .get();
     }
+
+
+    /**
+     * 安装一个CMD命令回复topic监控器
+     *
+     * @return
+     */
+
+    @Bean("ClientCmdReplyMessageHandler")
+    public MqttPahoMessageDrivenChannelAdapter getClientCmdReplyMessageHandler() {
+        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(
+                "ClientCmdReplyMessageHandler",
+                mqttClientFactory());
+        //CMD/IN/所有命令回复
+        adapter.addTopic("CMD/IN/#");//监控设备接到命令回复的消息
+        adapter.setCompletionTimeout(5000);
+        adapter.setConverter(new DefaultPahoMessageConverter());
+        adapter.setQos(1);
+        return adapter;
+    }
+
+    /**
+     * CMD命令监控消息接收器
+     *
+     * @return
+     */
+    @Bean("clientCmdReplyMessageInflow")
+    public IntegrationFlow mqttClientCmdReplyMessageInflow() {
+        return IntegrationFlows.from(getClientCmdReplyMessageHandler())
+                .handle(clientCmdReplyMessageHandler)
+                .get();
+    }
+
+
+    /**
+     * 实时消息
+     *
+     * @return
+     */
+
+    @Bean("RealTimeMessageHandler")
+    public MqttPahoMessageDrivenChannelAdapter getRealTimeMessageHandler() {
+        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(
+                "RealTimeMessageHandler",
+                mqttClientFactory());
+        adapter.addTopic("OUT/REAL_TIME/#");//实时消息
+        adapter.setCompletionTimeout(5000);
+        adapter.setConverter(new DefaultPahoMessageConverter());
+        adapter.setQos(1);
+        return adapter;
+    }
+
+    /**
+     *
+     * @return
+     */
+
+    @Bean("mqttRealTimeMessageInflow")
+    public IntegrationFlow mqttRealTimeMessageInflow() {
+        return IntegrationFlows.from(getRealTimeMessageHandler())
+                .handle(realTimeMessageHandler)
+                .get();
+    }
+
 }

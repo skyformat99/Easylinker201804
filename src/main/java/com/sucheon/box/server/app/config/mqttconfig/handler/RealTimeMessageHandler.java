@@ -1,19 +1,24 @@
 package com.sucheon.box.server.app.config.mqttconfig.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
 /**
- * 服务器向外部发送消息
- * Created by wwhai on 2018/3/14.
+ * 实时消息广播监听器，在这里仅仅是测试作用
+ * 后期会关闭监控，仅仅留给websocket使用
+ *
  */
 @Component
-public class OutMessageHandler implements MessageHandler {
+public class RealTimeMessageHandler implements MessageHandler {
+    Logger logger = LoggerFactory.getLogger(RealTimeMessageHandler.class);
+
     @Override
     public void handleMessage(Message<?> message) throws MessagingException {
-        System.out.println("服务器给客户端发送了消息:" + message.getPayload());
+        logger.info("实时消息:" + message.getPayload());
 
     }
 }
