@@ -29,8 +29,6 @@ public class InMessageHandler implements MessageHandler {
     Logger logger = LoggerFactory.getLogger(ClientOnAndOfflineWillMessageHandler.class);
 
     @Autowired
-    AudioDataService audioDataService;
-    @Autowired
     DeviceService deviceService;
 
     @Autowired
