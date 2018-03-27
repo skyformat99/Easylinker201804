@@ -44,6 +44,7 @@ public class InMessageHandler implements MessageHandler {
 
     @Override
     //mqtt_topic=IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/1521508320898
+    //这里必须这么写，以内ACL控制了Topic
     public void handleMessage(Message<?> message) throws MessagingException {
 
 
