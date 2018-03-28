@@ -88,9 +88,9 @@ public class UserRegisterEtcController {
 
                     return ReturnResult.returnTipMessage(1, "注册成功!");
                 } catch (Exception e) {
-                    if (e instanceof SMTPAddressFailedException){
+                    if (e instanceof SMTPAddressFailedException) {
                         return ReturnResult.returnTipMessage(0, "邮箱无效！请使用正确的邮箱!");
-                    }else {
+                    } else {
                         e.printStackTrace();
                         return ReturnResult.returnTipMessage(0, "邮箱无效！");
                     }
@@ -157,10 +157,17 @@ public class UserRegisterEtcController {
         }
     }
 
-    @RequestMapping("/sendActiveMailAgain/{activeCode}")
-    public JSONObject sendActiveMailAgain(@PathVariable String activeCode) {
-        String username = new String(Base64.getDecoder().decode(activeCode.getBytes()));
-        AppUser appUser = appUserService.getAAppUserByUsername(username);
+    /**
+     * 发送激活邮件
+     *
+     * @param userId
+     * @return
+     */
+
+    @RequestMapping("/sendActiveMailAgain/{userId}")
+    public JSONObject sendActiveMailAgain(@PathVariable Long userId) {
+
+        AppUser appUser = appUserService.findAAppUser(userId);
         if (appUser == null) {
             return ReturnResult.returnTipMessage(0, "用户不存在!");
         } else {
