@@ -7,9 +7,11 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableWebSecurity
 @EnableAsync
+@EnableTransactionManagement
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @SpringBootApplication
 public class EasyLinkerApplication {

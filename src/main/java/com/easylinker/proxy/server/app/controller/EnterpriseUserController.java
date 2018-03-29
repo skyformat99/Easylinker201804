@@ -5,11 +5,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 超级管理员业务控制器
+ * 企业管理控制器 :ROLE_ENTERPRISE
+ * 企业用户可以自己创建设备
+ *
  */
 @RestController
-@RequestMapping("/superAdmin")
-@PreAuthorize(value = "hasRole('ROLE_SUPER_ADMIN') AND hasRole('ROLE_USER')")
+@PreAuthorize(value = "hasRole('ROLE_ENTERPRISE') AND hasRole('ROLE_USER')")
+@RequestMapping("/enterprise")
+public class EnterpriseUserController {
 
-public class SuperAdminController {
+
+
+
+
+
 }
