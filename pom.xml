@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.easylinker.proxy.server.app</groupId>
-    <artifactId>sucheon</artifactId>
+    <artifactId>EasyLinkerApplication</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Easylinker</name>
+    <name>EasyLinkerApplication</name>
     <description>MqProxyServer</description>
 
     <parent>
