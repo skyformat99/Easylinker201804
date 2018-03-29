@@ -61,7 +61,10 @@ public class AdminController {
 
         } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
-        } else {
+        }else if (!deviceNamePrefix.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+            return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
+        }
+        else {
 
             Device device = new Device();
             DeviceGroup deviceGroup = new DeviceGroup();
@@ -70,9 +73,9 @@ public class AdminController {
             deviceGroupService.save(deviceGroup);//保存分组
 
             device.setLastActiveDate(new Date());
-            device.setDeviceName("SucheonBox_" + deviceName);
+            device.setDeviceName("Device_" + deviceName);
             device.setDeviceName(deviceNamePrefix + "_Auto_Batch_Product_Num_");
-            device.setDeviceDescribe("SucheonBox_" + deviceDescribe);
+            device.setDeviceDescribe("Device_" + deviceDescribe);
             device.setClientId(device.getId().toString());
             //设置ACL  默认值
             device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());
@@ -136,7 +139,7 @@ public class AdminController {
 
                 device.setLastActiveDate(new Date());
                 device.setDeviceName(deviceNamePrefix + "_Auto_Batch_Product_Num_" + i);
-                device.setDeviceDescribe("SucheonBox_Auto_Batch_Product_Num_" + i);
+                device.setDeviceDescribe("Device_Auto_Batch_Product_Num_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值
                 device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());

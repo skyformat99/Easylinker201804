@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.dao.DeviceRepository;
 import com.easylinker.proxy.server.app.model.device.Device;
+import com.easylinker.proxy.server.app.model.device.DeviceGroup;
 import com.easylinker.proxy.server.app.model.user.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +39,9 @@ public class DeviceService {
         return deviceRepository.findTopByOpenId(openId);
     }
 
-    public JSONArray getAllDevicesByAppUser(AppUser appUser) {
+    public JSONArray getAllDevicesByAppUser(AppUser appUser, Pageable pageable) {
         JSONArray data = new JSONArray();
-        List<Device> dataList = deviceRepository.findAllByAppUser(appUser);
+        List<Device> dataList = deviceRepository.findAllByAppUser(appUser, pageable);
         for (Device device : dataList) {
             JSONObject deviceJson = new JSONObject();
             deviceJson.put("name", device.getDeviceName());
@@ -53,11 +54,34 @@ public class DeviceService {
         return data;
     }
 
+
+    public JSONArray getAllDevicesByAppUserAndGroup(AppUser appUser, DeviceGroup deviceGroup, Pageable pageable) {
+        JSONArray data = new JSONArray();
+        List<Device> dataList = deviceRepository.findAllByAppUserAndDeviceGroup(appUser, deviceGroup, pageable);
+        for (Device device : dataList) {
+            JSONObject deviceJson = new JSONObject();
+            deviceJson.put("name", device.getDeviceName());
+            deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("lastActiveDate", device.getLastActiveDate());
+            deviceJson.put("describe", device.getDeviceDescribe());
+            deviceJson.put("location", device.getLocation().toString());
+            data.add(deviceJson);
+        }
+        return data;
+    }
+
+
     public JSONArray getAllDevices(Pageable pageable) {
         JSONArray data = new JSONArray();
         List<Device> dataList = deviceRepository.findAll(pageable).getContent();
         for (Device device : dataList) {
             JSONObject deviceJson = new JSONObject();
+            if (device.getAppUser() == null) {
+                deviceJson.put("isBind", false);
+            } else {
+                deviceJson.put("isBind", true);
+            }
+            deviceJson.put("openId", device.getOpenId());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("describe", device.getDeviceDescribe());
             deviceJson.put("barCode", device.getBarCode());

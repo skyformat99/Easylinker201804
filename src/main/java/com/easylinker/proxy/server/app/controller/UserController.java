@@ -9,9 +9,13 @@ import com.easylinker.proxy.server.app.service.AppUserService;
 import com.easylinker.proxy.server.app.service.DeviceGroupService;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
  * 用户的业务逻辑层
  */
 public class UserController {
+
     @Autowired
     AppUserService appUserService;
     @Autowired
@@ -85,23 +90,6 @@ public class UserController {
         }
     }
 
-    /**
-     * 获取所有分组
-     *
-     * @return
-     */
-
-    @RequestMapping(value = "/getALlGroups", method = RequestMethod.GET)
-    public JSONObject getALlGroups() {
-        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        JSONObject returnJson = new JSONObject();
-        returnJson.put("state", 1);
-        returnJson.put("message", "查询成功!");
-        returnJson.put("data", deviceGroupService.getAllByAppUser(appUser));
-        return returnJson;
-
-    }
 
     /**
      * 改变设备的分组
@@ -147,16 +135,52 @@ public class UserController {
     }
 
     /**
+     * 获取所有分组
+     *
+     * @return
+     */
+
+    @RequestMapping(value = "/getALlGroups", method = RequestMethod.GET)
+    public JSONObject getALlGroups() {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("state", 1);
+        returnJson.put("message", "查询成功!");
+        returnJson.put("data", deviceGroupService.getAllByAppUser(appUser));
+        return returnJson;
+
+    }
+
+
+    /**
      * 用户获取所有的设备
      *
      * @return
      */
-    @RequestMapping(value = "/getAllDevices", method = RequestMethod.GET)
-    public JSONObject getAllDevices() {
+    @RequestMapping(value = "/getAllDevices/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllDevices(@PathVariable int page, @PathVariable int size) {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDevicesByAppUser(appUser, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
 
-        return ReturnResult.returnDataMessage(1, "查询成功!",  deviceService.getAllDevicesByAppUser(appUser));
+    }
 
+    /**
+     * 当前登陆用户根据分组ID查询所有的设备
+     * @param groupId
+     * @param page
+     * @param size
+     * @return
+     */
+    @RequestMapping(value = "/getAllDevicesByGroup/{groupId}/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllDevicesByGroup(@PathVariable Long groupId, @PathVariable int page, @PathVariable int size) {
+        AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        DeviceGroup deviceGroup = deviceGroupService.findADeviceGroup(groupId);
+        if (deviceGroup != null) {
+            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDevicesByAppUserAndGroup(appUser, deviceGroup, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
+        } else {
+            return ReturnResult.returnTipMessage(0, "分组不存在!");
+        }
 
     }
 
