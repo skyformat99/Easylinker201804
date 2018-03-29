@@ -82,6 +82,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().formLogin().disable().httpBasic().disable()
                 .logout().permitAll()
                 .and().logout().logoutSuccessHandler(logoutSuccessHandler)
+                .logoutUrl("/logOut")
                 .and().rememberMe().alwaysRemember(true)
                 .and().exceptionHandling()
                 .authenticationEntryPoint(anonymousHandler)
