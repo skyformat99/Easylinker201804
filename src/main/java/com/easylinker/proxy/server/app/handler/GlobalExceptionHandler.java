@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
             resultJson.put("message", "Error code 5004!你没有权限访问该路径!");
         }
         else {
-            e.printStackTrace();
+            System.out.println("异常信息:"+e.getLocalizedMessage());
             resultJson.put("state", 0);
             resultJson.put("message", "Error code 5005!未知错误,请联系管理员!");
         }

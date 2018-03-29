@@ -83,20 +83,20 @@ public class UserRegisterEtcController {
                 userRole.setAppUser(appUser);
                 userRole.setRole("ROLE_USER");
                 userRoleService.save(userRole);
-                try {
-                    emailSender.sendActiveUserAccountMail(appUser);
-
-                    return ReturnResult.returnTipMessage(1, "注册成功!");
-                } catch (Exception e) {
-                    if (e instanceof SMTPAddressFailedException) {
-                        return ReturnResult.returnTipMessage(0, "邮箱无效！请使用正确的邮箱!");
-                    } else {
-                        e.printStackTrace();
-                        return ReturnResult.returnTipMessage(0, "邮箱无效！");
-                    }
-
-
-                }
+                return ReturnResult.returnTipMessage(1, "注册成功!");
+//                try {
+//                    //emailSender.sendActiveUserAccountMail(appUser);
+//                    return ReturnResult.returnTipMessage(1, "注册成功!");
+//                } catch (Exception e) {
+//                    if (e instanceof SMTPAddressFailedException) {
+//                        return ReturnResult.returnTipMessage(0, "邮箱无效！请使用正确的邮箱!");
+//                    } else {
+//                        e.printStackTrace();
+//                        return ReturnResult.returnTipMessage(0, "邮箱无效！");
+//                    }
+//
+//
+//                }
 
             }
         }
