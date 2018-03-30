@@ -55,36 +55,29 @@ public class AdminController {
         String groupName = deviceBody.getString("groupName");
 
 
-        if (deviceName == null || groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
+        if (deviceDescribe == null || deviceName == null || groupName == null || latitude == null || longitude == null || locationDescribe == null || deviceNamePrefix == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
 
 
         } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
-        }else if (!deviceNamePrefix.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+        } else if (!deviceNamePrefix.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
             return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
-        }
-        else {
+        } else {
 
             Device device = new Device();
             DeviceGroup deviceGroup = new DeviceGroup();
-            deviceGroup.setComment("普通用户");
-            deviceGroup.setGroupName("DEFAULT_GROUP");
+            deviceGroup.setComment(groupName);
+            deviceGroup.setGroupName(groupName);
             deviceGroupService.save(deviceGroup);//保存分组
-
+            device.setDeviceGroup(deviceGroup);
+            device.setAppUser(null);
             device.setLastActiveDate(new Date());
-            device.setDeviceName("Device_" + deviceName);
-            device.setDeviceName(deviceNamePrefix + "_Auto_Batch_Product_Num_");
+            device.setDeviceName(deviceNamePrefix +"_"+ deviceName);
             device.setDeviceDescribe("Device_" + deviceDescribe);
             device.setClientId(device.getId().toString());
             //设置ACL  默认值
-            device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());
-            device.setBarCode(Image2Base64Tool.imageToBase64String(
-                    QRCodeGenerator.string2BarCode(device.getId().toString()))
-            );
-            //设置ACL 默认
-            //"IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/123145315436
-            device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());
+            device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getGroupName() + "/" + device.getId());
             device.setBarCode(Image2Base64Tool.imageToBase64String(
                     QRCodeGenerator.string2BarCode(device.getId().toString()))
             );
@@ -93,7 +86,7 @@ public class AdminController {
             location.setDevice(device);
             location.setLatitude(latitude);
             location.setLongitude(longitude);
-            location.setLocationDescribe("位于:[" + locationDescribe + "]的盒子!");
+            location.setLocationDescribe("位于:[" + locationDescribe + "]的设备!");
             locationService.save(location);//先保存位置
             device.setLocation(location);
             deviceService.save(device);
@@ -103,6 +96,7 @@ public class AdminController {
 
     /**
      * 批量增加设备
+     * 批量增加设备不需要指定专门的名称 前缀，自动生成.
      *
      * @param deviceBody
      * @return
@@ -125,6 +119,9 @@ public class AdminController {
 
         } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
             return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
+
+        } else if (!deviceNamePrefix.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+            return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
         } else {
 
             for (int i = 0; i < deviceSum; i++) {
@@ -132,17 +129,16 @@ public class AdminController {
                 Device device = new Device();
                 DeviceGroup deviceGroup = new DeviceGroup();
                 deviceGroup.setAppUser(null);
-                deviceGroup.setComment("普通用户");
-                deviceGroup.setGroupName("DEFAULT_GROUP");
+                deviceGroup.setComment(groupName);
+                deviceGroup.setGroupName(groupName);
                 deviceGroupService.save(deviceGroup);//保存分组
                 device.setDeviceGroup(deviceGroup);
-
                 device.setLastActiveDate(new Date());
-                device.setDeviceName(deviceNamePrefix + "_Auto_Batch_Product_Num_" + i);
+                device.setDeviceName(deviceNamePrefix + "_Auto_" + i);
                 device.setDeviceDescribe("Device_Auto_Batch_Product_Num_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值
-                device.setTopic("IN/DEVICE/DEFAULT_USER/DEFAULT_GROUP/" + device.getId());
+                device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getGroupName() + "/" + device.getId());
                 device.setBarCode(Image2Base64Tool.imageToBase64String(
                         QRCodeGenerator.string2BarCode(device.getId().toString()))
                 );
@@ -152,7 +148,7 @@ public class AdminController {
                 location.setDevice(device);
                 location.setLatitude(latitude);
                 location.setLongitude(longitude);
-                location.setLocationDescribe("位于:[" + locationDescribe + "]的盒子!");
+                location.setLocationDescribe("位于:[" + locationDescribe + "]的设备!");
                 locationService.save(location);//先保存位置
                 device.setLocation(location);
                 deviceService.save(device);
@@ -231,7 +227,6 @@ public class AdminController {
 
             }
         }
-
 
 
     }
