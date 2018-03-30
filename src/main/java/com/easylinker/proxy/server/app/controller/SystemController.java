@@ -28,7 +28,7 @@ public class SystemController {
         Properties sysProperty = System.getProperties(); //系统属性
         systemProperty.put("java.version", sysProperty.getProperty("java.version"));
         systemProperty.put("java.vendor", sysProperty.getProperty("java.vendor"));
-        systemProperty.put("java.home", sysProperty.getProperty("java.home"));
+        systemProperty.put("java.home", sysProperty.getProperty("java.home").replace("\\","_"));
         systemProperty.put("java.vm.version", sysProperty.getProperty("java.vm.version"));
         systemProperty.put("os.name", sysProperty.getProperty("os.name"));
         systemProperty.put("os.arch", sysProperty.getProperty("os.arch"));
