@@ -96,7 +96,7 @@ public class MqttConfig {
      */
     @Bean("MqttClientInMessageListenerInbound")
     public MessageProducerSupport getMqttClientInMessageListener() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(
+        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "MqttClientInMessageListenerInbound",
                 mqttClientFactory());
         //OUT/DEVICE/DEFAULT_USER/DEFAULT_GROUP/ID  为客户端SUB的TOPIC
@@ -130,7 +130,7 @@ public class MqttConfig {
 
     @Bean("ClientCmdReplyMessageHandler")
     public MqttPahoMessageDrivenChannelAdapter getClientCmdReplyMessageHandler() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(
+        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "ClientCmdReplyMessageHandler",
                 mqttClientFactory());
         //CMD/IN/所有命令回复
@@ -162,7 +162,7 @@ public class MqttConfig {
 
     @Bean("RealTimeMessageHandler")
     public MqttPahoMessageDrivenChannelAdapter getRealTimeMessageHandler() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(
+        MqttPahoMessageDrivenChannelAdapter adapter = new EMqttPahoMessageDrivenChannelAdapter(
                 "RealTimeMessageHandler",
                 mqttClientFactory());
         adapter.addTopic("OUT/REAL_TIME/#");//实时消息

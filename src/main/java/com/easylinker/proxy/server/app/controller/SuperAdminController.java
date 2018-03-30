@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/superAdmin")
-@PreAuthorize(value = "hasRole('ROLE_SUPER_ADMIN') AND hasRole('ROLE_USER')")
+@PreAuthorize(value = "hasRole('ROLE_SUPER_ADMIN') AND  hasRole('ROLE_USER')")
 
 public class SuperAdminController {
 }

@@ -47,8 +47,9 @@ public class DeviceService {
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
-            deviceJson.put("describe", device.getDeviceDescribe());
             deviceJson.put("location", device.getLocation().toString());
+            deviceJson.put("describe", device.getDeviceDescribe());
+
             data.add(deviceJson);
         }
         return data;
@@ -60,8 +61,8 @@ public class DeviceService {
         List<Device> dataList = deviceRepository.findAllByAppUserAndDeviceGroup(appUser, deviceGroup, pageable);
         for (Device device : dataList) {
             JSONObject deviceJson = new JSONObject();
-            deviceJson.put("name", device.getDeviceName());
             deviceJson.put("barCode", device.getBarCode());
+            deviceJson.put("name", device.getDeviceName());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             deviceJson.put("describe", device.getDeviceDescribe());
             deviceJson.put("location", device.getLocation().toString());

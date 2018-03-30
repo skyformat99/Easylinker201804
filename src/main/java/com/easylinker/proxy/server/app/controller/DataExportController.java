@@ -33,6 +33,17 @@ public class DataExportController {
      * @throws IOException
      */
     @RequestMapping(value = "/exportExcel", method = RequestMethod.GET)
+
+    /**
+     * --------------------------
+     * -OPENID  |Name|备注|二维码|
+     * -------------------------
+     * |1322342|Box1|etc|Base64|
+     * ------------------------
+     *|1322342|Box1|etc|Base64|
+     *------------------------
+     */
+
     public JSONObject exportExcel() throws IOException {
         List<Device> deviceList = deviceService.findAllDevice();
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -59,10 +70,13 @@ public class DataExportController {
         workbook.write(new FileOutputStream(excel));
 
         try {
-            boolean isOjbk = upYun.writeFile("/", new File(filename), true);
+            /**
+             * writeFile(String filePath, File file, boolean auto)
+             * 有个坑：又拍云的SDK里面，必须手动指定文件名，而不是去读取参数2的文件名.
+             */
+            boolean isOjbk = upYun.writeFile("/data_export/" + filename, new File(filename), true);
             if (isOjbk) {
                 excel.delete();
-                //List<UpYun.FolderItem> items = upYun.readDir("/");
                 return ReturnResult.returnTipMessage(1, "数据上传成功!");
             } else {
                 return ReturnResult.returnTipMessage(0, "数据上传失败!");
