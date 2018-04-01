@@ -41,9 +41,6 @@ public class DeviceService {
         return deviceRepository.findTopById(id);
     }
 
-    public Device getADeviceByOpenId(Long openId) {
-        return deviceRepository.findTopByOpenId(openId);
-    }
 
     public JSONArray getAllDevicesByAppUser(AppUser appUser, Pageable pageable) {
         JSONArray data = new JSONArray();
@@ -104,22 +101,4 @@ public class DeviceService {
     }
 
 
-    public JSONArray getAllDeviceGroupByName(String groupName, AppUser appUser) {
-        JSONArray data = new JSONArray();
-        for (DeviceGroup group : deviceGroupRepository.findAllByGroupNameAndAppUser(groupName, appUser)) {
-            List<Device> deviceList = deviceRepository.findAllByDeviceGroup(group);
-            for (Device device : deviceList) {
-                JSONObject deviceJson = new JSONObject();
-                deviceJson.put("openId", device.getOpenId());
-                deviceJson.put("name", device.getDeviceName());
-                deviceJson.put("describe", device.getDeviceDescribe());
-                deviceJson.put("location", device.getLocation().getLocationDescribe());
-                deviceJson.put("barCode", device.getBarCode());
-                deviceJson.put("lastActiveDate", device.getLastActiveDate());
-                data.add(deviceJson);
-            }
-
-        }
-        return data;
-    }
 }

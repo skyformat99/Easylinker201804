@@ -1,5 +1,6 @@
 package com.easylinker.proxy.server.app.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
@@ -168,22 +169,17 @@ public class UserController {
     /**
      * 当前登陆用户根据分组ID查询所有的设备
      *
-     * @param groupName
-     * @param page
-     * @param size
+     * @param
+     * @param
+     * @param
      * @return
      */
-    @RequestMapping(value = "/getAllDevicesByGroup/{groupName}", method = RequestMethod.GET)
-    public JSONObject getAllDevicesByGroup(@PathVariable String groupName) {
+    @RequestMapping(value = "/getAllDevicesByGroup/{groupId}/{page}/{size}", method = RequestMethod.GET)
+    public JSONObject getAllDevicesByGroup(@PathVariable Long groupId, @PathVariable int page, @PathVariable int size) {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        //DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupByName(groupName);
-        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDeviceGroupByName(groupName, appUser));
+        DeviceGroup group = deviceGroupService.findADeviceGroupById(groupId);
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDevicesByAppUserAndGroup(appUser, group, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
 
-//        if (deviceGroup != null) {
-//            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDeviceGroupByName(groupName, appUser));
-//        } else {
-//            return ReturnResult.returnTipMessage(0, "分组不存在!");
-//        }
 
     }
 

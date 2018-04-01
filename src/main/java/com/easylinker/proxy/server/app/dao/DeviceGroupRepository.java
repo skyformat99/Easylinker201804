@@ -12,7 +12,7 @@ public interface DeviceGroupRepository extends JpaRepository<DeviceGroup, Long> 
 
     DeviceGroup findTopByGroupName(String name);
 
-    DeviceGroup findTopByGroupName(Long id);
+    DeviceGroup findTopById(Long id);
 
 
     List<DeviceGroup> findAllByGroupNameAndAppUser(String name, AppUser appUser);

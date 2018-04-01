@@ -57,18 +57,17 @@ public class DeviceGroupService {
         return data;
     }
 
-    public DeviceGroup findByGroupName(String name) {
-        return deviceGroupRepository.findTopByGroupName(name);
-    }
 
 
     public void delete(DeviceGroup deviceGroup) {
         deviceGroupRepository.delete(deviceGroup);
     }
 
-    public List<DeviceGroup> findAllDeviceGroupByNameAndAppUser(String groupName, AppUser appUser) {
-        return deviceGroupRepository.findAllByGroupNameAndAppUser(groupName, appUser);
+
+    public DeviceGroup findADeviceGroupById(Long id) {
+        return deviceGroupRepository.findTopById(id);
     }
+
 
     public DeviceGroup findADeviceGroupByName(String groupName) {
         return deviceGroupRepository.findTopByGroupName(groupName);
