@@ -28,6 +28,7 @@ import java.util.Base64;
 public class UserRegisterEtcController {
     static final String RULE_EMAIL = "^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+$";
     static final String RULE_PHONE = "(\\(\\d{3,4}\\)|\\d{3,4}-|\\s)?\\d{7,14}";
+    static final String RULE_USERNAME = "^[0-9a-zA-Z\\u4e00-\\u9fa5_]{6,12}$";
     @Autowired
     AppUserService appUserService;
 
@@ -48,10 +49,11 @@ public class UserRegisterEtcController {
 
         String username = userBody.getString("username");
         String password = userBody.getString("password");
+        String passwordRetry = userBody.getString("passwordRetry");
         String email = userBody.getString("email");
         String phone = userBody.getString("phone");
 
-        if (username == null || password == null || email == null || phone == null) {
+        if (username == null || password == null || email == null || phone == null || passwordRetry == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
         } else if (appUserService.getAAppUserWithParameter(username) != null) {
             return ReturnResult.returnTipMessage(0, "该用户名已经被注册!");
@@ -62,6 +64,11 @@ public class UserRegisterEtcController {
         } else if (appUserService.getAAppUserWithParameter(email) != null) {
             return ReturnResult.returnTipMessage(0, "该邮箱已经被注册!");
 
+        } else if (password.matches("\"^[A-Za-z0-9]{6,12}+$")) {
+            return ReturnResult.returnTipMessage(0, "密码必须为6-12为字母数字组合");
+        } else if (!password.equals(passwordRetry)) {
+            return ReturnResult.returnTipMessage(0, "两次输入密码不一样!");
+
 
         } else {//处理邮箱 电话号码格式
             if ((!email.matches(RULE_EMAIL))) {
@@ -69,6 +76,9 @@ public class UserRegisterEtcController {
 
             } else if ((!phone.matches(RULE_PHONE))) {
                 return ReturnResult.returnTipMessage(0, "电话号码格式错误!");
+
+            } else if ((!username.matches(RULE_USERNAME))) {
+                return ReturnResult.returnTipMessage(0, "用户名必须6-12位!");
 
             } else {//所有的非法条件过滤以后，开始注册用户
                 AppUser appUser = new AppUser();
@@ -108,34 +118,65 @@ public class UserRegisterEtcController {
      * @param userBody
      * @return
      */
+    @Transient
     @RequestMapping(value = "/updateUser")
     public JSONObject updateUser(@RequestBody JSONObject userBody) {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String password = userBody.getString("password");
         String email = userBody.getString("email");
         String phone = userBody.getString("phone");
+        String params[] = new String[]{"password", "email", "phone"};
+        for (String param : params) {
+            if (userBody.containsKey(param)) {
+                if (param.equals("username")) {
+                    if (appUserService.getAAppUserWithParameter(phone) != null) {
+                        return ReturnResult.returnTipMessage(0, "该用户名已经被注册!");
+                    }
+                    appUser.setUsername(userBody.getString(param));
 
-        if (password == null || email == null || phone == null) {
-            return ReturnResult.returnTipMessage(0, "参数不全!");
-        } else if (appUserService.getAAppUserWithParameter(phone) != null) {
-            return ReturnResult.returnTipMessage(0, "该电话号已经被注册!");
-        } else if (appUserService.getAAppUserWithParameter(email) != null) {
-            return ReturnResult.returnTipMessage(0, "该邮箱已经被注册!");
+                }
+                if (param.equals("email")) {
+                    if (appUserService.getAAppUserWithParameter(email) != null) {
+                        return ReturnResult.returnTipMessage(0, "该邮箱已经被注册!");
+                    }
+                    appUser.setEmail(userBody.getString(param));
 
+                }
+                if (param.equals("phone")) {
+                    if (appUserService.getAAppUserWithParameter(email) != null) {
+                        return ReturnResult.returnTipMessage(0, "该电话号码已经被注册!");
+                    }
+                    appUser.setPhone(userBody.getString(param));
+                }
+
+            }
         }
-        if ((!email.matches(RULE_EMAIL))) {
-            return ReturnResult.returnTipMessage(0, "邮箱格式错误!");
 
-        } else if ((!phone.matches(RULE_PHONE))) {
-            return ReturnResult.returnTipMessage(0, "电话号码格式错误!");
+        appUser.setEmail(email);
+        appUser.setPhone(phone);
+        appUserService.save(appUser);
+        return ReturnResult.returnTipMessage(1, "用户信息更新成功");
 
-        } else {//所有的非法条件过滤以后，开始注册用户
-            appUser.setPassword(MD5Generator.EncodingMD5(password));
-            appUser.setEmail(email);
-            appUser.setPhone(phone);
-            appUserService.save(appUser);
-            return ReturnResult.returnTipMessage(1, "用户信息更新成功");
-        }
+//        if (password == null || email == null || phone == null) {
+//            return ReturnResult.returnTipMessage(0, "参数不全!");
+//        } else if (appUserService.getAAppUserWithParameter(phone) != null) {
+//            return ReturnResult.returnTipMessage(0, "该电话号已经被注册!");
+//        } else if (appUserService.getAAppUserWithParameter(email) != null) {
+//            return ReturnResult.returnTipMessage(0, "该邮箱已经被注册!");
+//
+//        }
+//        if ((!email.matches(RULE_EMAIL))) {
+//            return ReturnResult.returnTipMessage(0, "邮箱格式错误!");
+//
+//        } else if ((!phone.matches(RULE_PHONE))) {
+//            return ReturnResult.returnTipMessage(0, "电话号码格式错误!");
+//
+//        } else {//所有的非法条件过滤以后，开始注册用户
+//            appUser.setPassword(MD5Generator.EncodingMD5(password));
+//            appUser.setEmail(email);
+//            appUser.setPhone(phone);
+//            appUserService.save(appUser);
+//            return ReturnResult.returnTipMessage(1, "用户信息更新成功");
+//        }
     }
 
     /**
@@ -180,5 +221,32 @@ public class UserRegisterEtcController {
         }
 
     }
+
+    /**
+     * 改密码
+     *
+     * @param body
+     * @return
+     */
+    @RequestMapping(value = "/changePassword")
+    public JSONObject changePassword(@RequestBody JSONObject body) {
+        String newPassword = body.getString("newPassword");
+        String newPasswordRetry = body.getString("newPasswordRetry");
+
+        if (newPassword == null || newPasswordRetry == null) {
+            return ReturnResult.returnTipMessage(0, "参数不全");
+        } else if (!newPassword.matches("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$")) {
+            return ReturnResult.returnTipMessage(0, "密码必须是6-16位字母数字组合!");
+        } else if (!newPassword.equals(newPasswordRetry)) {
+            return ReturnResult.returnTipMessage(0, " 两次密码不一样!");
+        } else {
+            AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            appUser.setPassword(MD5Generator.EncodingMD5(newPassword));
+            appUserService.save(appUser);
+            return ReturnResult.returnTipMessage(0, " 密码重置成功!");
+
+        }
+    }
+
 
 }

@@ -108,7 +108,7 @@ public class UserController {
 
         } else {
             Device device = deviceService.findADevice(deviceId);
-            DeviceGroup deviceGroup = deviceGroupService.getAGroupByName(groupName);
+            DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupByName(groupName);
             if (device != null) {
                 if (deviceGroup == null) {
                     AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -167,20 +167,23 @@ public class UserController {
 
     /**
      * 当前登陆用户根据分组ID查询所有的设备
-     * @param groupId
+     *
+     * @param groupName
      * @param page
      * @param size
      * @return
      */
-    @RequestMapping(value = "/getAllDevicesByGroup/{groupId}/{page}/{size}", method = RequestMethod.GET)
-    public JSONObject getAllDevicesByGroup(@PathVariable Long groupId, @PathVariable int page, @PathVariable int size) {
+    @RequestMapping(value = "/getAllDevicesByGroup/{groupName}", method = RequestMethod.GET)
+    public JSONObject getAllDevicesByGroup(@PathVariable String groupName) {
         AppUser appUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        DeviceGroup deviceGroup = deviceGroupService.findADeviceGroup(groupId);
-        if (deviceGroup != null) {
-            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDevicesByAppUserAndGroup(appUser, deviceGroup, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))));
-        } else {
-            return ReturnResult.returnTipMessage(0, "分组不存在!");
-        }
+        //DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupByName(groupName);
+        return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDeviceGroupByName(groupName, appUser));
+
+//        if (deviceGroup != null) {
+//            return ReturnResult.returnDataMessage(1, "查询成功!", deviceService.getAllDeviceGroupByName(groupName, appUser));
+//        } else {
+//            return ReturnResult.returnTipMessage(0, "分组不存在!");
+//        }
 
     }
 

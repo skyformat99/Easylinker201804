@@ -2,6 +2,7 @@ package com.easylinker.proxy.server.app.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.easylinker.proxy.server.app.dao.DeviceGroupRepository;
 import com.easylinker.proxy.server.app.dao.DeviceRepository;
 import com.easylinker.proxy.server.app.model.device.Device;
 import com.easylinker.proxy.server.app.model.device.DeviceGroup;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +22,10 @@ public class DeviceService {
     @Autowired
 
     DeviceRepository deviceRepository;
+
+
+    @Autowired
+    DeviceGroupRepository deviceGroupRepository;
 
     public void save(Device device) {
         deviceRepository.save(device);
@@ -82,10 +88,10 @@ public class DeviceService {
             } else {
                 deviceJson.put("isBind", true);
             }
+            deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("openId", device.getOpenId());
             deviceJson.put("name", device.getDeviceName());
             deviceJson.put("describe", device.getDeviceDescribe());
-            deviceJson.put("barCode", device.getBarCode());
             deviceJson.put("location", device.getLocation().getLocationDescribe());
             deviceJson.put("lastActiveDate", device.getLastActiveDate());
             data.add(deviceJson);
@@ -95,5 +101,25 @@ public class DeviceService {
 
     public List<Device> findAllDevice() {
         return deviceRepository.findAll();
+    }
+
+
+    public JSONArray getAllDeviceGroupByName(String groupName, AppUser appUser) {
+        JSONArray data = new JSONArray();
+        for (DeviceGroup group : deviceGroupRepository.findAllByGroupNameAndAppUser(groupName, appUser)) {
+            List<Device> deviceList = deviceRepository.findAllByDeviceGroup(group);
+            for (Device device : deviceList) {
+                JSONObject deviceJson = new JSONObject();
+                deviceJson.put("openId", device.getOpenId());
+                deviceJson.put("name", device.getDeviceName());
+                deviceJson.put("describe", device.getDeviceDescribe());
+                deviceJson.put("location", device.getLocation().getLocationDescribe());
+                deviceJson.put("barCode", device.getBarCode());
+                deviceJson.put("lastActiveDate", device.getLastActiveDate());
+                data.add(deviceJson);
+            }
+
+        }
+        return data;
     }
 }
