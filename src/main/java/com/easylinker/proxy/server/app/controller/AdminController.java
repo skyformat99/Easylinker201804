@@ -73,7 +73,7 @@ public class AdminController {
             device.setDeviceGroup(deviceGroup);
             device.setAppUser(null);
             device.setLastActiveDate(new Date());
-            device.setDeviceName(deviceNamePrefix +"_"+ deviceName);
+            device.setDeviceName(deviceNamePrefix + "_" + deviceName);
             device.setDeviceDescribe("Device_" + deviceDescribe);
             device.setClientId(device.getId().toString());
             //设置ACL  默认值
@@ -197,6 +197,7 @@ public class AdminController {
     public JSONObject bindDevicesToUser(@RequestBody JSONObject body) {
         //[111,222,333,4444]->appUser
         Long userId = body.getLongValue("userId");
+        String groupName = body.getString("groupName");
         JSONArray deviceIdArray;
         try {
             deviceIdArray = body.getJSONArray("deviceIdArray");
@@ -205,8 +206,10 @@ public class AdminController {
 
         }
 
-        if (userId == null || deviceIdArray == null) {
+        if (userId == null || deviceIdArray == null || groupName == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
+        } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
+            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
         } else {
             AppUser appUser = appUserService.findAAppUser(userId);
             if (appUser != null) {
@@ -218,6 +221,12 @@ public class AdminController {
                         successCount += 1;
                         device.setAppUser(appUser);
                         deviceService.save(device);
+                        DeviceGroup deviceGroup = new DeviceGroup();
+                        deviceGroup.setAppUser(appUser);
+                        deviceGroup.setComment("默认分组");
+                        deviceGroup.setGroupName(groupName);
+                        device.setDeviceGroup(deviceGroup);
+                        deviceGroupService.save(deviceGroup);
                     }
 
                 }
