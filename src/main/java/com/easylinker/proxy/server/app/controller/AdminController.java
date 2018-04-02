@@ -13,6 +13,7 @@ import com.easylinker.proxy.server.app.service.AppUserService;
 import com.easylinker.proxy.server.app.service.DeviceGroupService;
 import com.easylinker.proxy.server.app.service.DeviceService;
 import com.easylinker.proxy.server.app.service.LocationService;
+import com.sun.javafx.geom.transform.BaseTransform;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -77,10 +78,8 @@ public class AdminController {
             device.setDeviceDescribe("Device_" + deviceDescribe);
             device.setClientId(device.getId().toString());
             //设置ACL  默认值
-            device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getGroupName() + "/" + device.getId());
-            device.setBarCode(Image2Base64Tool.imageToBase64String(
-                    QRCodeGenerator.string2BarCode(device.getId().toString()))
-            );
+            device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getId() + "/" + device.getId());
+            device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
             device.setOpenId(device.getId().toString());
             Location location = new Location();
             location.setDevice(device);
@@ -123,33 +122,27 @@ public class AdminController {
         } else if (!deviceNamePrefix.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
             return ReturnResult.returnTipMessage(0, "设备名称前缀必须用英文字幕或者数字组合且不下6位!");
         } else {
-
+            DeviceGroup deviceGroup = new DeviceGroup();
+            deviceGroup.setAppUser(null);
+            deviceGroup.setComment(groupName);
+            deviceGroup.setGroupName(groupName);
+            deviceGroupService.save(deviceGroup);//所有新增加的设备，分组一样,保存分组
+            Location location = new Location();
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            location.setLocationDescribe("位于:[" + locationDescribe + "]的设备!");
+            locationService.save(location);//先保存位置
             for (int i = 0; i < deviceSum; i++) {
-
                 Device device = new Device();
-                DeviceGroup deviceGroup = new DeviceGroup();
-                deviceGroup.setAppUser(null);
-                deviceGroup.setComment(groupName);
-                deviceGroup.setGroupName(groupName);
-                deviceGroupService.save(deviceGroup);//保存分组
                 device.setDeviceGroup(deviceGroup);
                 device.setLastActiveDate(new Date());
                 device.setDeviceName(deviceNamePrefix + "_Auto_" + i);
                 device.setDeviceDescribe("Device_Auto_Batch_Product_Num_" + i);
                 device.setClientId(device.getId().toString());
                 //设置ACL  默认值
-                device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getGroupName() + "/" + device.getId());
-                device.setBarCode(Image2Base64Tool.imageToBase64String(
-                        QRCodeGenerator.string2BarCode(device.getId().toString()))
-                );
+                device.setTopic("IN/DEVICE/DEFAULT_USER/" + deviceGroup.getId() + "/" + device.getId());
+                device.setBarCode(Image2Base64Tool.imageToBase64String(QRCodeGenerator.string2BarCode(device.getId().toString())));
                 device.setOpenId(device.getId().toString());
-
-                Location location = new Location();
-                location.setDevice(device);
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                location.setLocationDescribe("位于:[" + locationDescribe + "]的设备!");
-                locationService.save(location);//先保存位置
                 device.setLocation(location);
                 deviceService.save(device);
             }
@@ -197,7 +190,7 @@ public class AdminController {
     public JSONObject bindDevicesToUser(@RequestBody JSONObject body) {
         //[111,222,333,4444]->appUser
         Long userId = body.getLongValue("userId");
-        String groupName = body.getString("groupName");
+        Long groupId = body.getLongValue("groupId");
         JSONArray deviceIdArray;
         try {
             deviceIdArray = body.getJSONArray("deviceIdArray");
@@ -206,31 +199,55 @@ public class AdminController {
 
         }
 
-        if (userId == null || deviceIdArray == null || groupName == null) {
+        if (userId == null || deviceIdArray == null || groupId == null) {
             return ReturnResult.returnTipMessage(0, "参数不全!");
-        } else if (!groupName.matches("(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,}")) {
-            return ReturnResult.returnTipMessage(0, "设备组必须用英文字幕或者数字组合且不下6位!");
         } else {
+            int total = deviceIdArray.size();
+            int successCount = 0;
             AppUser appUser = appUserService.findAAppUser(userId);
             if (appUser != null) {
-                int total = deviceIdArray.size();
-                int successCount = 0;
-                for (Object o : deviceIdArray) {
-                    Device device = deviceService.findADevice((Long.parseLong(o.toString())));
-                    if (device != null && device.getAppUser() == null) {
-                        successCount += 1;
-                        device.setAppUser(appUser);
-                        deviceService.save(device);
-                        DeviceGroup deviceGroup = new DeviceGroup();
-                        deviceGroup.setAppUser(appUser);
-                        deviceGroup.setComment("默认分组");
-                        deviceGroup.setGroupName(groupName);
-                        device.setDeviceGroup(deviceGroup);
-                        deviceGroupService.save(deviceGroup);
+                DeviceGroup deviceGroup = deviceGroupService.findADeviceGroupById(groupId);
+                if (deviceGroup != null) {
+                    for (Object o : deviceIdArray) {
+                        Device device = deviceService.findADevice((Long.parseLong(o.toString())));
+                        if (device != null && device.getAppUser() == null) {
+                            successCount += 1;
+                            device.setAppUser(appUser);
+                            device.setDeviceGroup(deviceGroup);
+                            //更新ACL
+                            device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + deviceGroup.getId() + "/" + device.getId());
+                            deviceGroupService.save(deviceGroup);
+                            deviceService.save(device);
+                        }
+
+                    }
+                    return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "]");
+
+                } else {
+                    for (Object o : deviceIdArray) {
+                        Device device = deviceService.findADevice((Long.parseLong(o.toString())));
+                        if (device != null && device.getAppUser() == null) {
+                            successCount += 1;
+                            //更新ACL
+                            DeviceGroup newGroup = new DeviceGroup();
+                            newGroup.setGroupName("group_" + appUser.getUsername());
+                            newGroup.setAppUser(appUser);
+                            newGroup.setComment("用户:" + appUser.getUsername() + "的分组");
+                            deviceGroupService.save(newGroup);
+                            device.setAppUser(appUser);
+                            device.setDeviceGroup(newGroup);
+                            device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + newGroup.getId() + "/" + device.getId());
+                            deviceService.save(device);
+                        } else {
+                            System.out.println("ID:["+o.toString() + "]对应的设备不存在,绑定失败!");
+                        }
+
                     }
 
+                    return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "],如果有失败，可能原因:部分设备ID不存在!");
                 }
-                return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "]");
+
+
             } else {
                 return ReturnResult.returnTipMessage(0, "用户不存在!");
 

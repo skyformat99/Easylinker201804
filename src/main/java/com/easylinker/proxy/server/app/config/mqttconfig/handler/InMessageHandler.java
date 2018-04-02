@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class InMessageHandler implements MessageHandler {
-    Logger logger = LoggerFactory.getLogger(ClientOnAndOfflineWillMessageHandler.class);
+    Logger logger = LoggerFactory.getLogger(InMessageHandler.class);
 
     @Autowired
     DeviceService deviceService;
