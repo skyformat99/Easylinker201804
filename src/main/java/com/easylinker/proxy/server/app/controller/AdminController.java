@@ -224,22 +224,23 @@ public class AdminController {
                     return ReturnResult.returnTipMessage(1, "结果:总数[" + total + "]成功[" + successCount + "]失败[" + (total - successCount) + "]");
 
                 } else {
+                    //更新ACL
+                    DeviceGroup newGroup = new DeviceGroup();
+                    newGroup.setGroupName("group_" + appUser.getUsername());
+                    newGroup.setAppUser(appUser);
+                    newGroup.setComment("用户:" + appUser.getUsername() + "的分组");
                     for (Object o : deviceIdArray) {
                         Device device = deviceService.findADevice((Long.parseLong(o.toString())));
                         if (device != null && device.getAppUser() == null) {
                             successCount += 1;
-                            //更新ACL
-                            DeviceGroup newGroup = new DeviceGroup();
-                            newGroup.setGroupName("group_" + appUser.getUsername());
-                            newGroup.setAppUser(appUser);
-                            newGroup.setComment("用户:" + appUser.getUsername() + "的分组");
+
                             deviceGroupService.save(newGroup);
                             device.setAppUser(appUser);
                             device.setDeviceGroup(newGroup);
                             device.setTopic("IN/DEVICE/" + appUser.getId() + "/" + newGroup.getId() + "/" + device.getId());
                             deviceService.save(device);
                         } else {
-                            System.out.println("ID:["+o.toString() + "]对应的设备不存在,绑定失败!");
+                            System.out.println("ID:[" + o.toString() + "]对应的设备不存在,绑定失败!");
                         }
 
                     }
