@@ -16,7 +16,7 @@ public class ReturnResult {
      */
     public static JSONObject returnTipMessage(int code, String tipMessage) {
         JSONObject returnJson = new JSONObject();
-        returnJson.put("code", code);
+        returnJson.put("state", code);
         returnJson.put("message", tipMessage);
         return returnJson;
 
